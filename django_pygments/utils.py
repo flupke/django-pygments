@@ -7,26 +7,15 @@ from pygments.formatters import HtmlFormatter
 import re
 from django.utils.encoding import smart_unicode
 
-class ListHtmlFormatter(HtmlFormatter):
-    def wrap(self, source, outfile):
-        return self._wrap_div(self._wrap_pre(self._wrap_list(source)))
-
-    def _wrap_list(self, source):
-        yield 0, '<ol>'
-        for i, t in source:
-            if i == 1:
-                # it's a line of formatted code
-                t = '<li><div class="line">%s</div></li>' % t
-            yield i, t
-        yield 0, '</ol>'
-
 def pygmentify_html(text, **kwargs):
     text = smart_unicode(text)
     lang = default_lang = 'text'
     # a tuple of known lexer names
     lexer_names = reduce(lambda a,b: a + b[2], LEXERS.itervalues(), ())
     # custom formatter
-    formatter = ListHtmlFormatter(encoding='utf-8', **kwargs)
+    defaults = {'encoding': 'utf-8'}
+    defaults.update(kwargs)
+    formatter = HtmlFormatter(**defaults)
     subs = []
     pre_re = re.compile(r'(<pre[^>]*>)(.*?)(</pre>)', re.DOTALL | re.UNICODE)
     br_re = re.compile(r'<br[^>]*?>', re.UNICODE)
